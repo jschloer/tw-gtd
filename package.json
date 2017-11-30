@@ -1,0 +1,15 @@
+{
+  "name": "tw-gtd",
+  "version": "0.0.1",
+  "description": "Process taskwarrior items using GTD methodologies written in Node ",
+  "main": "index.js",
+  "repository": "ssh+git://git@github.com/jschloer/tw-gtd.git",
+  "author": "Jason Schloer <jschloer@hotmail.com>",
+  "license": "MIT",
+  "scripts": {
+    "start": "node src/index.js"
+  },
+  "dependencies": {
+    "inquirer": "^4.0.1"
+  }
+}
