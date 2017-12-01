@@ -1,3 +1,4 @@
+var inquirer = require('inquirer');
 const util = require('util');
 const exec = util.promisify(require('child_process').exec);
 
@@ -11,6 +12,19 @@ async function get_in_tasks() {
   //console.log('stdout:', stdout);
   //console.log('stderr:', stderr);
   const taskList = JSON.parse(stdout);
-  console.log('taskList[0].description: ', taskList[0].description);
+  return taskList;
+  //console.log('taskList[0].description: ', taskList[0].description);
 }
-get_in_tasks();
+get_in_tasks().then(res => {
+  console.log('output: ', res);
+  inquirer
+    .prompt([
+      {
+        type: 'list',
+        name: 'task',
+        choices: res.map(task => ({ name: task.description, value: task.id })),
+        message: 'Choose a task',
+      },
+    ])
+    .then(answers => {});
+});
