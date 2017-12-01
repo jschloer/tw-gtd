@@ -11,6 +11,6 @@ async function get_in_tasks() {
   //console.log('stdout:', stdout);
   //console.log('stderr:', stderr);
   const taskList = JSON.parse(stdout);
-console.log('taskList[0].description: ', taskList[0].description);
+  console.log('taskList[0].description: ', taskList[0].description);
 }
 get_in_tasks();

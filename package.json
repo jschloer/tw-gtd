@@ -1,15 +1,26 @@
 {
   "name": "tw-gtd",
   "version": "0.0.1",
-  "description": "Process taskwarrior items using GTD methodologies written in Node ",
+  "description":
+    "Process taskwarrior items using GTD methodologies written in Node ",
   "main": "index.js",
   "repository": "ssh+git://git@github.com/jschloer/tw-gtd.git",
   "author": "Jason Schloer <jschloer@hotmail.com>",
   "license": "MIT",
   "scripts": {
-    "start": "node src/index.js"
+    "start": "node src/index.js",
+    "precommit": "lint-staged",
+    "prettier": "prettier --write 'src/**/*.js' .prettierrc"
+  },
+  "lint-staged": {
+    "*.{js,json,css}": ["prettier --write", "git add"]
   },
   "dependencies": {
     "inquirer": "^4.0.1"
+  },
+  "devDependencies": {
+    "husky": "^0.14.3",
+    "lint-staged": "^5.0.0",
+    "prettier": "1.8.2"
   }
 }
