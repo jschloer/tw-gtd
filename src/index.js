@@ -1,6 +1,6 @@
 var inquirer = require('inquirer');
 var vorpal = require('vorpal')();
-var inmode = require('./inbox').default;
+var inbox = require('./inbox').default;
 
 async function ls() {
   const { stdout, stderr } = await exec('ls');
@@ -26,5 +26,7 @@ const test = () => {
   });
 };
 
-inmode(vorpal);
+inbox(vorpal);
+
+vorpal.delimiter('gtd $');
 vorpal.show();

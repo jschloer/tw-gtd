@@ -47,12 +47,12 @@ const handleNonActionableTask = (task, vorpalInstance) => {
     .prompt([
       {
         type: 'list',
-        message: 'Delete, Incubate, or add to Reference',
+        message: 'Incubate, add to Reference, or Delete',
         name: 'action',
         choices: [
-          { name: 'Delete', value: 'delete' },
           { name: 'Incubate', value: 'incubate' },
           { name: 'Reference', value: 'reference' },
+          { name: 'Delete', value: 'delete' },
         ],
       },
     ])
@@ -70,6 +70,9 @@ const handleNonActionableTask = (task, vorpalInstance) => {
           // get the current task info and display
           //remind user to store the information somewhere
           //delete
+          vorpalInstance.log(
+            'Make sure to add that item to your reference library and then delete it'
+          );
           break;
         default:
           console.log('Not sure what happened');
