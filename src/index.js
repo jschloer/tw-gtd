@@ -1,6 +1,6 @@
 var inquirer = require('inquirer');
 var vorpal = require('vorpal')();
-var inmode = require('./in-mode').default;
+var inmode = require('./inbox').default;
 
 async function ls() {
   const { stdout, stderr } = await exec('ls');

@@ -36,3 +36,9 @@ So in inbox mode you are presented with the task information, and are asked, Is 
 		SCHEDULED
 		  This makes some sense, but still a little iffy. We'll get user input on the due date and modify the task with that value
 
+
+
+
+Inbox mode? 
+So I'm not sure this needs to be a vorpal mode. This feels more like a simple command as we should just pass through each item one at a time and then exit inbox mode. Gonna try it that way to start. Can make it a mode later if need be.
+
