@@ -131,7 +131,6 @@ const handleProjectTask = (task, vorpalInstance) => {
         const taskNames = newTasks.map(newTask => {
           return `proj:${result.projectName} ${newTask}`;
         });
-        console.log('taskNames: ', taskNames);
         return createTasks(taskNames).then(() => {
           return deleteTask(task.id);
           //console.log('Now we would delete the original task');
