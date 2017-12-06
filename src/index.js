@@ -1,30 +1,32 @@
 var inquirer = require('inquirer');
-const util = require('util');
-const exec = util.promisify(require('child_process').exec);
+var vorpal = require('vorpal')();
+var inbox = require('./inbox').default;
 
 async function ls() {
   const { stdout, stderr } = await exec('ls');
   console.log('stdout:', stdout);
   console.log('stderr:', stderr);
 }
-async function get_in_tasks() {
-  const { stdout, stderr } = await exec('task status:pending +in export');
-  //console.log('stdout:', stdout);
-  //console.log('stderr:', stderr);
-  const taskList = JSON.parse(stdout);
-  return taskList;
-  //console.log('taskList[0].description: ', taskList[0].description);
-}
-get_in_tasks().then(res => {
-  console.log('output: ', res);
-  inquirer
-    .prompt([
-      {
-        type: 'list',
-        name: 'task',
-        choices: res.map(task => ({ name: task.description, value: task.id })),
-        message: 'Choose a task',
-      },
-    ])
-    .then(answers => {});
-});
+const test = () => {
+  get_in_tasks().then(res => {
+    console.log('output: ', res);
+    inquirer
+      .prompt([
+        {
+          type: 'list',
+          name: 'task',
+          choices: res.map(task => ({
+            name: task.description,
+            value: task.id,
+          })),
+          message: 'Choose a task',
+        },
+      ])
+      .then(answers => {});
+  });
+};
+
+inbox(vorpal);
+
+vorpal.delimiter('gtd $');
+vorpal.show();
