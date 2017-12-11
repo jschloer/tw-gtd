@@ -39,6 +39,12 @@ async function createTasks(tasks) {
     return exec(`task add ${newTask}`);
   });
 }
+
+async function removeTaskFromInbox(taskId) {
+  const { stdout, stderr } = await exec(`task ${taskId} mod -in`);
+  return stdout;
+}
+
 const handleInboxTask = (task, vorpalInstance) => {
   //given a task, display it and give the user the first question
   vorpalInstance.log(`${task.id} ${task.description}`);
@@ -77,11 +83,11 @@ const handleNonActionableTask = (task, vorpalInstance) => {
       switch (result.action) {
         case 'delete':
           //call the task delete command
-          deleteTask(task.id);
+          deleteTask(task.uuid);
           break;
         case 'incubate':
           //remove the inbox flag and add the later flag
-          maybeLaterTask(task.id);
+          maybeLaterTask(task.uuid);
           break;
         case 'reference':
           // get the current task info and display
@@ -132,7 +138,7 @@ const handleProjectTask = (task, vorpalInstance) => {
           return `proj:${result.projectName} ${newTask}`;
         });
         return createTasks(taskNames).then(() => {
-          return deleteTask(task.id);
+          return deleteTask(task.uuid);
           //console.log('Now we would delete the original task');
         });
       });
@@ -184,9 +190,12 @@ const handleNonProjectTask = (task, vorpalInstance) => {
           ])
           .then(secondResult => {
             if (secondResult.complete) {
-              completeTask(task.id);
+              completeTask(task.uuid);
             }
           });
+      } else {
+        // we should do a lot more, like verify context, etc, but for now just remove the -in
+        removeTaskFromInbox(task.uuid);
       }
     });
 };
