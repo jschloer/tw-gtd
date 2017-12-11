@@ -16,6 +16,11 @@ async function get_in_tasks() {
   const taskList = JSON.parse(stdout);
   return taskList;
 }
+async function getCurrentProjects() {
+  const { stdout, stderr } = await exec('task _projects');
+  const projectList = stdout.split('\n');
+  return projectList;
+}
 async function deleteTask(taskId) {
   const { stdout, stderr } = await exec(
     `task rc.confirmation=off ${taskId} delete -y`
@@ -120,29 +125,36 @@ const handleActionableTask = (task, vorpalInstance) => {
     });
 };
 const handleProjectTask = (task, vorpalInstance) => {
-  return vorpalInstance
-    .prompt([
-      {
-        type: 'input',
-        name: 'projectName',
-        message: 'What is the name of the project for this task? ',
-      },
-    ])
-    .then(result => {
-      // now ask the user to enter the names of tasks for this project
-      // how do we deal with contexts.... Let's just enter them with the task for now
-      //return vorpalInstance.prompt([{type: 'input', name:'task name'}])
-      //console.log('vorpalInstance: ', vorpalInstance);
-      return handleProjectAddTask(vorpalInstance, []).then(newTasks => {
-        const taskNames = newTasks.map(newTask => {
-          return `proj:${result.projectName} ${newTask}`;
-        });
-        return createTasks(taskNames).then(() => {
-          return deleteTask(task.uuid);
-          //console.log('Now we would delete the original task');
+  // Give user a list of existing projects
+  return getCurrentProjects().then(projects => {
+    vorpalInstance.log('Existing projects:');
+    projects.forEach(project => {
+      vorpalInstance.log(project);
+    });
+    return vorpalInstance
+      .prompt([
+        {
+          type: 'input',
+          name: 'projectName',
+          message: 'What is the name of the project for this task? ',
+        },
+      ])
+      .then(result => {
+        // now ask the user to enter the names of tasks for this project
+        // how do we deal with contexts.... Let's just enter them with the task for now
+        //return vorpalInstance.prompt([{type: 'input', name:'task name'}])
+        //console.log('vorpalInstance: ', vorpalInstance);
+        return handleProjectAddTask(vorpalInstance, []).then(newTasks => {
+          const taskNames = newTasks.map(newTask => {
+            return `proj:${result.projectName} ${newTask}`;
+          });
+          return createTasks(taskNames).then(() => {
+            return deleteTask(task.uuid);
+            //console.log('Now we would delete the original task');
+          });
         });
       });
-    });
+  });
 };
 const handleProjectAddTask = (vorpalInstance, newTasks) => {
   // ask the user for the name of a task and add if they enter nothing, then end
