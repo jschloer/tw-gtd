@@ -156,7 +156,7 @@ const handleProjectTask = (task, vorpalInstance) => {
       });
   });
 };
-const handleProjectAddTask = (vorpalInstance, newTasks) => {
+const handleProjectAddTask = (vorpalInstance, newTasks, defContext) => {
   // ask the user for the name of a task and add if they enter nothing, then end
   return vorpalInstance
     .prompt([
@@ -165,15 +165,25 @@ const handleProjectAddTask = (vorpalInstance, newTasks) => {
         name: 'taskName',
         message: 'Enter a task name(leave blank if finished):',
       },
+      {
+        type: 'input',
+        name: 'contextName',
+        default: defContext,
+        message: 'Enter a context name:',
+      },
     ])
     .then(result => {
       if (result.taskName.trim() === '') {
         return newTasks;
       } else {
-        return handleProjectAddTask(vorpalInstance, [
-          ...newTasks,
-          result.taskName,
-        ]);
+        const contextName = result.contextName
+          ? `+@${result.contextName} `
+          : '';
+        return handleProjectAddTask(
+          vorpalInstance,
+          [...newTasks, `${contextName}${result.taskName}`],
+          result.contextName
+        );
       }
     });
 };
