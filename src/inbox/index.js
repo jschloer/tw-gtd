@@ -1,7 +1,6 @@
 var inquirer = require('inquirer');
 
-const util = require('util');
-const exec = util.promisify(require('child_process').exec);
+const tw = require('../tasklib/tasklib.js');
 
 function forEachPromise(items, fn, context) {
   return items.reduce(function(promise, item) {
@@ -9,45 +8,6 @@ function forEachPromise(items, fn, context) {
       return fn(item, context);
     });
   }, Promise.resolve());
-}
-
-async function get_in_tasks() {
-  const { stdout, stderr } = await exec('task status:pending +in export');
-  const taskList = JSON.parse(stdout);
-  return taskList;
-}
-async function getCurrentProjects() {
-  const { stdout, stderr } = await exec('task _projects');
-  const projectList = stdout.split('\n');
-  return projectList;
-}
-async function deleteTask(taskId) {
-  const { stdout, stderr } = await exec(
-    `task rc.confirmation=off ${taskId} delete -y`
-  );
-  //console.log('stdout: ', stdout);
-  return stdout;
-  //return exec(`task ${taskId} delete -y`);
-}
-async function maybeLaterTask(taskId) {
-  const { stdout, stderr } = await exec(`task ${taskId} mod -in +later`);
-  //console.log('stdout: ', stdout);
-  return stdout;
-  //return exec(`task ${taskId} mod -in +later`);
-}
-async function completeTask(taskId) {
-  const { stdout, stderr } = await exec(`task ${taskId} done`);
-  return stdout;
-}
-async function createTasks(tasks) {
-  return forEachPromise(tasks, newTask => {
-    return exec(`task add ${newTask}`);
-  });
-}
-
-async function removeTaskFromInbox(taskId) {
-  const { stdout, stderr } = await exec(`task ${taskId} mod -in`);
-  return stdout;
 }
 
 const handleInboxTask = (task, vorpalInstance) => {
@@ -88,11 +48,11 @@ const handleNonActionableTask = (task, vorpalInstance) => {
       switch (result.action) {
         case 'delete':
           //call the task delete command
-          deleteTask(task.uuid);
+          tw.deleteTask(task.uuid);
           break;
         case 'incubate':
           //remove the inbox flag and add the later flag
-          maybeLaterTask(task.uuid);
+          tw.maybeLaterTask(task.uuid);
           break;
         case 'reference':
           // get the current task info and display
@@ -126,7 +86,7 @@ const handleActionableTask = (task, vorpalInstance) => {
 };
 const handleProjectTask = (task, vorpalInstance) => {
   // Give user a list of existing projects
-  return getCurrentProjects().then(projects => {
+  return tw.getCurrentProjects().then(projects => {
     vorpalInstance.log('Existing projects:');
     projects.forEach(project => {
       vorpalInstance.log(project);
@@ -148,8 +108,8 @@ const handleProjectTask = (task, vorpalInstance) => {
           const taskNames = newTasks.map(newTask => {
             return `proj:${result.projectName} ${newTask}`;
           });
-          return createTasks(taskNames).then(() => {
-            return deleteTask(task.uuid);
+          return tw.createTasks(taskNames).then(() => {
+            return tw.deleteTask(task.uuid);
             //console.log('Now we would delete the original task');
           });
         });
@@ -212,23 +172,23 @@ const handleNonProjectTask = (task, vorpalInstance) => {
           ])
           .then(secondResult => {
             if (secondResult.complete) {
-              completeTask(task.uuid);
+              tw.completeTask(task.uuid);
             }
           });
       } else {
         // we should do a lot more, like verify context, etc, but for now just remove the -in
-        removeTaskFromInbox(task.uuid);
+        tw.removeTaskFromInbox(task.uuid);
       }
     });
 };
 
-exports.default = vorpal => {
+module.exports = vorpal => {
   vorpal
     .command('inbox')
     .description('Processes the inbox tasks')
     .alias('in')
     .action(function(args, cb) {
-      get_in_tasks().then(tasks => {
+      tw.get_in_tasks().then(tasks => {
         if (tasks.length > 0) {
           this.log("Here's the first task in your inbox");
         } else {
