@@ -28,9 +28,7 @@ async function getTasksCompletedWithin(startDate, endDate) {
   if (endDate) {
     filterString += ` end.before=${formatDateTimeForTW(endDate)}`;
   }
-  console.log('filterString: ', filterString);
   const query = `task status:completed ${filterString} export`;
-  console.log('query: ', query);
   const { stdout, stderr } = await exec(query);
   const taskList = JSON.parse(stdout);
   return taskList;
