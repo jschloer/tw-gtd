@@ -1,3 +1,4 @@
+var datefns = require('date-fns');
 // Set of functions to interact with taskwarrior
 const util = require('util');
 const exec = util.promisify(require('child_process').exec);
@@ -10,9 +11,27 @@ function forEachPromise(items, fn, context) {
     });
   }, Promise.resolve());
 }
+function formatDateTimeForTW(inputDate) {
+  return datefns.format(inputDate, 'YYYY-MM-DDTHH:mm:ss');
+}
 
 async function get_in_tasks() {
   const { stdout, stderr } = await exec('task status:pending +in export');
+  const taskList = JSON.parse(stdout);
+  return taskList;
+}
+async function getTasksCompletedWithin(startDate, endDate) {
+  let filterString = '';
+  if (startDate) {
+    filterString += ` end.after=${formatDateTimeForTW(startDate)}`;
+  }
+  if (endDate) {
+    filterString += ` end.before=${formatDateTimeForTW(endDate)}`;
+  }
+  console.log('filterString: ', filterString);
+  const query = `task status:completed ${filterString} export`;
+  console.log('query: ', query);
+  const { stdout, stderr } = await exec(query);
   const taskList = JSON.parse(stdout);
   return taskList;
 }
@@ -53,4 +72,5 @@ module.exports = {
   completeTask,
   createTasks,
   removeTaskFromInbox,
+  getTasksCompletedWithin,
 };

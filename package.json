@@ -16,6 +16,7 @@
     "*.{js,json,css}": ["prettier --write", "git add"]
   },
   "dependencies": {
+    "date-fns": "^1.29.0",
     "inquirer": "^4.0.1",
     "vorpal": "^1.12.0"
   },
